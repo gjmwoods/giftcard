@@ -8,11 +8,14 @@ import javax.persistence.NamedQueries
 import javax.persistence.NamedQuery
 
 data class IssueCmd(@TargetAggregateIdentifier val id: String, val amount: Int)
-data class IssuedEvt(val id: String, val amount: Int)
+data class IssuedEvt(val id: String, val amount: Int, val timestamp: Long)
 data class RedeemCmd(@TargetAggregateIdentifier val id: String, val amount: Int)
 data class RedeemedEvt(val id: String, val amount: Int)
 data class CancelCmd(@TargetAggregateIdentifier val id: String)
 data class CancelEvt(val id: String)
+data class BackgroundCheckStarted(val id: String, val timestamp: Long)
+data class BackgroundCheckFinished(val id: String, val timestamp: Long)
+
 
 @Entity
 @NamedQueries(
@@ -28,5 +31,7 @@ data class CardSummaryFilter(val idStartsWith: String = "")
 class CountCardSummariesQuery(val filter: CardSummaryFilter = CardSummaryFilter()) { override fun toString() : String = "CountCardSummariesQuery" }
 data class CountCardSummariesResponse(val count: Int, val lastEvent: Long)
 data class FetchCardSummariesQuery(val offset: Int, val limit: Int, val filter: CardSummaryFilter)
+data class AverageProcessTimeResponse(val averageResponseTime: Long)
+class AverageProcessTimeQuery
 
 class CountChangedUpdate()

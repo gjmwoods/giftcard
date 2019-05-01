@@ -31,7 +31,7 @@ public class GiftCard {
     public GiftCard(IssueCmd cmd) {
         log.debug("handling {}", cmd);
         if(cmd.getAmount() <= 0) throw new IllegalArgumentException("amount <= 0");
-        apply(new IssuedEvt(cmd.getId(), cmd.getAmount()));
+        apply(new IssuedEvt(cmd.getId(), cmd.getAmount(),System.currentTimeMillis()));
     }
 
     @CommandHandler
