@@ -37,48 +37,12 @@ public class MultProcessorConfig {
                                  .build();
     }
 
-    @Bean
-    @Qualifier("ephemeral")
-    public EventStorageEngine configureEventStoreForEphemeralEvents(){
-        return new InMemoryEventStorageEngine();
-    }
-
-    @Bean
-    @Qualifier("ephemeral")
-    public EmbeddedEventStore ephemeralEventStore(
-            @Qualifier("ephemeral") EventStorageEngine storageEngine, AxonConfiguration configuration) {
-        return EmbeddedEventStore.builder()
-                                 .storageEngine(storageEngine)
-                                 .messageMonitor(configuration.messageMonitor(EventStore.class, "eventStore"))
-                                 .build();
-    }
-
-    @Bean
-    public MultiStreamableMessageSource multiStreamableMessageSource(@Qualifier("eventStore") EmbeddedEventStore permanentEventStore, @Qualifier("ephemeral") EmbeddedEventStore ephemeralEventStore){
-
-        HashMap<String, StreamableMessageSource<TrackedEventMessage<?>>> messageSources = new HashMap<>();
-
-        messageSources.put("permanent", permanentEventStore);
-        messageSources.put("ephemeral", ephemeralEventStore);
-
-        return new MultiStreamableMessageSource(messageSources);
-    }
 
     @Autowired
-    public void configureSaga(EventProcessingConfigurer config, MultiStreamableMessageSource multiStreamableMessageSource){
+    public void configureSaga(EventProcessingConfigurer config){
 
         //configure the tracking config and eventStore sources for SagaExample
-        config.registerTrackingEventProcessor("SagaExampleProcessor", c-> multiStreamableMessageSource);
+        config.registerSubscribingEventProcessor("SagaExampleProcessor");
 
-        //Needed if you want to change the name of the TrackingProcessor backing the Saga
-//        config.assignHandlerTypesMatching("SagaExampleProcessor", SagaExample.class::equals);
     }
-
-    //Sample duel Tracking Event Processor Configuration
-//    @Autowired
-//    public void configureTrackingProcessor(EventProcessingConfigurer config, MultiStreamableMessageSource multiStreamableMessageSource){
-//
-//        config.registerTrackingEventProcessor(CardSummaryProjection.class.getPackage().getName(), c -> multiStreamableMessageSource);
-//    }
-
 }

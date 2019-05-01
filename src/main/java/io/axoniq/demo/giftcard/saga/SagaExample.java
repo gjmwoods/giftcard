@@ -27,7 +27,6 @@ public class SagaExample {
     private transient CommandGateway commandGateway;
 
     @Autowired
-    @Qualifier("ephemeral")
     private transient EmbeddedEventStore ephemeralES;
 
     @SagaEventHandler(associationProperty = "id")
@@ -47,7 +46,6 @@ public class SagaExample {
         logger.info("Background check started.");
 
         //do something that may takes a while...
-        Thread.sleep(1000);
         ephemeralES.publish(GenericDomainEventMessage.asEventMessage(new BackgroundCheckFinished(event.getId(),System.currentTimeMillis())));
     }
 
