@@ -47,7 +47,6 @@ public class SagaExample {
         logger.info("Background check started.");
 
         //do something that may takes a while...
-        Thread.sleep(1000);
         ephemeralES.publish(GenericDomainEventMessage.asEventMessage(new BackgroundCheckFinished(event.getId(),System.currentTimeMillis())));
     }
 

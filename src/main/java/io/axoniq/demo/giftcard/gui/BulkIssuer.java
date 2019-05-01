@@ -24,6 +24,11 @@ public class BulkIssuer {
         new Thread(() -> {
             for(int i = 0; i < number; i++) {
                 String id = UUID.randomUUID().toString().substring(0, 11).toUpperCase();
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    log.error("Interrupted {}",e);
+                }
                 commandGateway
                         .send(new IssueCmd(id, amount))
                         .whenComplete((Object o, Throwable throwable) -> {
