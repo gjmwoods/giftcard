@@ -3,6 +3,8 @@ package io.axoniq.demo.giftcard.saga;
 import io.axoniq.demo.giftcard.api.BackgroundCheckFinished;
 import io.axoniq.demo.giftcard.api.BackgroundCheckStarted;
 import io.axoniq.demo.giftcard.api.IssuedEvt;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.eventhandling.GenericDomainEventMessage;
 import org.axonframework.eventsourcing.eventstore.EmbeddedEventStore;
@@ -15,6 +17,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import java.util.concurrent.TimeUnit;
+
 @Saga
 public class SagaExample {
 
@@ -22,6 +26,9 @@ public class SagaExample {
 
     @Autowired
     private transient SimpleAverageTracker averageTracker;
+
+    @Autowired
+    private transient MeterRegistry meterRegistry;
 
     @Autowired
     private transient CommandGateway commandGateway;
@@ -36,6 +43,7 @@ public class SagaExample {
         Long now = System.currentTimeMillis();
         logger.info("New IssuedEvent received. Starting background check");
         long processTime = now-event.getTimestamp();
+        meterRegistry.timer("Saga.timer").record(processTime, TimeUnit.MILLISECONDS);
         logger.info("Time to retireve: {}", processTime);
         averageTracker.updateAverage(processTime);
         logger.info("Current Average: {}", averageTracker.getCurrentAverage());

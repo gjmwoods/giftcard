@@ -133,7 +133,7 @@
         </dependency>
 		<dependency>
 			<groupId>org.axonframework</groupId>
-			<artifactId>axon-micrometer</artifactId>
+			<artifactId>axon-metrics</artifactId>
 			<version>4.1</version>
 		</dependency>
 		<dependency>
