@@ -58,12 +58,6 @@
 			<groupId>org.axonframework</groupId>
 			<artifactId>axon-spring-boot-starter</artifactId>
 			<version>${axon.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.axonframework</groupId>
-					<artifactId>axon-server-connector</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 
 		<!-- Vanilla Spring Boot to start with -->
@@ -72,17 +66,16 @@
 			<artifactId>spring-boot-starter</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+
 		<!-- Spring Boot with JPA -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-			<version>${postgresql.jdbc.version}</version>
-			<scope>runtime</scope>
 		</dependency>
 
 		<!-- This will of course be an Axon application. We're adding Kotlin to easily

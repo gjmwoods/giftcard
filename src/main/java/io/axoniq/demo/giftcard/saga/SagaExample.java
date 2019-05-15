@@ -3,6 +3,7 @@ package io.axoniq.demo.giftcard.saga;
 import io.axoniq.demo.giftcard.api.BackgroundCheckFinished;
 import io.axoniq.demo.giftcard.api.BackgroundCheckStarted;
 import io.axoniq.demo.giftcard.api.IssuedEvt;
+import org.axonframework.axonserver.connector.event.axon.AxonServerEventStore;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.eventhandling.GenericDomainEventMessage;
 import org.axonframework.eventsourcing.eventstore.EmbeddedEventStore;
@@ -28,7 +29,7 @@ public class SagaExample {
 
     @Autowired
     @Qualifier("ephemeral")
-    private transient EmbeddedEventStore ephemeralES;
+    private transient AxonServerEventStore ephemeralES;
 
     @SagaEventHandler(associationProperty = "id")
     @StartSaga
