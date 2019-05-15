@@ -47,6 +47,7 @@ public class SagaExample {
         logger.info("Time to retireve: {}", processTime);
         averageTracker.updateAverage(processTime);
         logger.info("Current Average: {}", averageTracker.getCurrentAverage());
+
         ephemeralES.publish(GenericDomainEventMessage.asEventMessage(new BackgroundCheckStarted(event.getId(),now)));
     }
 

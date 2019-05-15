@@ -31,6 +31,8 @@
 
 		<vaadin.version>8.2.0</vaadin.version>
         <lombok.version>1.18.0</lombok.version>
+
+		<postgresql.jdbc.version>42.2.1</postgresql.jdbc.version>
 	</properties>
 
 	<dependencyManagement>
@@ -76,11 +78,12 @@
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
 
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>runtime</scope>
-        </dependency>
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>${postgresql.jdbc.version}</version>
+			<scope>runtime</scope>
+		</dependency>
 
 		<!-- This will of course be an Axon application. We're adding Kotlin to easily
 		     write command and event classes. -->
