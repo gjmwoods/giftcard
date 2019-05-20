@@ -41,18 +41,18 @@ public class SagaExample {
     @StartSaga
     public void on(IssuedEvt event){
         Long now = System.currentTimeMillis();
-        logger.info("New IssuedEvent received. Starting background check");
+
+        logger.debug("New IssuedEvent received. Starting background check");
+
         long processTime = now-event.getTimestamp();
         meterRegistry.timer("Saga.timer").record(processTime, TimeUnit.MILLISECONDS);
-        logger.info("Time to retireve: {}", processTime);
-        averageTracker.updateAverage(processTime);
-        logger.info("Current Average: {}", averageTracker.getCurrentAverage());
+        logger.info("{}", processTime);
         ephemeralES.publish(GenericDomainEventMessage.asEventMessage(new BackgroundCheckStarted(event.getId(),now)));
     }
 
     @SagaEventHandler(associationProperty = "id")
     public void on(BackgroundCheckStarted event) throws InterruptedException{
-        logger.info("Background check started.");
+        logger.debug("Background check started.");
 
         //do something that may takes a while...
         ephemeralES.publish(GenericDomainEventMessage.asEventMessage(new BackgroundCheckFinished(event.getId(),System.currentTimeMillis())));
@@ -61,7 +61,7 @@ public class SagaExample {
     @SagaEventHandler(associationProperty = "id")
     @EndSaga
     public void on(BackgroundCheckFinished event) {
-        logger.info("Background check came back fine");
+        logger.debug("Background check came back fine");
     }
 
 }

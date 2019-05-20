@@ -25,7 +25,7 @@ public class MultProcessorConfig {
     public void configureTimer(MeterRegistry meterRegistry){
         Timer.builder("Saga.timer")
              .maximumExpectedValue(Duration.ofMillis(200))
-             .publishPercentiles(0.1, 0.5, 0.95) // median and 95th percentile
+             .publishPercentiles(0.1, 0.5, 0.9, 0.95, 0.99) // median and 95th percentile
              .publishPercentileHistogram()
              .register(meterRegistry);
     }
