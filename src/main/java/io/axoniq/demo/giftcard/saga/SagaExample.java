@@ -3,6 +3,7 @@ package io.axoniq.demo.giftcard.saga;
 import io.axoniq.demo.giftcard.api.BackgroundCheckFinished;
 import io.axoniq.demo.giftcard.api.BackgroundCheckStarted;
 import io.axoniq.demo.giftcard.api.IssuedEvt;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.eventhandling.GenericDomainEventMessage;
 import org.axonframework.eventsourcing.eventstore.EmbeddedEventStore;
@@ -15,13 +16,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import java.util.concurrent.TimeUnit;
+
 @Saga
 public class SagaExample {
 
     private static final Logger logger = LoggerFactory.getLogger(SagaExample.class);
 
     @Autowired
-    private transient SimpleAverageTracker averageTracker;
+    private transient MeterRegistry meterRegistry;
 
     @Autowired
     private transient CommandGateway commandGateway;
@@ -33,17 +36,18 @@ public class SagaExample {
     @StartSaga
     public void on(IssuedEvt event){
         Long now = System.currentTimeMillis();
-        logger.info("New IssuedEvent received. Starting background check");
+
+        logger.debug("New IssuedEvent received. Starting background check");
+
         long processTime = now-event.getTimestamp();
-        logger.info("Time to retireve: {}", processTime);
-        averageTracker.updateAverage(processTime);
-        logger.info("Current Average: {}", averageTracker.getCurrentAverage());
+        meterRegistry.timer("Saga.timer").record(processTime, TimeUnit.MILLISECONDS);
+        logger.info("{}", processTime);
         ephemeralES.publish(GenericDomainEventMessage.asEventMessage(new BackgroundCheckStarted(event.getId(),now)));
     }
 
     @SagaEventHandler(associationProperty = "id")
     public void on(BackgroundCheckStarted event) throws InterruptedException{
-        logger.info("Background check started.");
+        logger.debug("Background check started.");
 
         //do something that may takes a while...
         ephemeralES.publish(GenericDomainEventMessage.asEventMessage(new BackgroundCheckFinished(event.getId(),System.currentTimeMillis())));
@@ -52,7 +56,7 @@ public class SagaExample {
     @SagaEventHandler(associationProperty = "id")
     @EndSaga
     public void on(BackgroundCheckFinished event) {
-        logger.info("Background check came back fine");
+        logger.debug("Background check came back fine");
     }
 
 }

@@ -1,14 +1,12 @@
 package io.axoniq.demo.giftcard;
 
-import io.axoniq.demo.giftcard.query.CardSummaryProjection;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import org.axonframework.config.EventProcessingConfigurer;
-import org.axonframework.eventhandling.MultiStreamableMessageSource;
-import org.axonframework.eventhandling.TrackedEventMessage;
 import org.axonframework.eventsourcing.eventstore.EmbeddedEventStore;
 import org.axonframework.eventsourcing.eventstore.EventStorageEngine;
 import org.axonframework.eventsourcing.eventstore.EventStore;
 import org.axonframework.eventsourcing.eventstore.inmemory.InMemoryEventStorageEngine;
-import org.axonframework.messaging.StreamableMessageSource;
 import org.axonframework.spring.config.AxonConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -16,10 +14,19 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
-import java.util.HashMap;
+import java.time.Duration;
 
 @Configuration
 public class MultProcessorConfig {
+
+    @Autowired
+    public void configureTimer(MeterRegistry meterRegistry){
+        Timer.builder("Saga.timer")
+             .maximumExpectedValue(Duration.ofMillis(200))
+             .publishPercentiles(0.1, 0.5, 0.9, 0.95, 0.99) // median and 95th percentile
+             .publishPercentileHistogram()
+             .register(meterRegistry);
+    }
 
     @Bean
     @Primary
