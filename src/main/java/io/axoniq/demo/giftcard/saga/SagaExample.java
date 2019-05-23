@@ -25,9 +25,6 @@ public class SagaExample {
     private static final Logger logger = LoggerFactory.getLogger(SagaExample.class);
 
     @Autowired
-    private transient SimpleAverageTracker averageTracker;
-
-    @Autowired
     private transient MeterRegistry meterRegistry;
 
     @Autowired
