@@ -40,39 +40,39 @@ public class CardSummaryDataProvider extends AbstractBackEndDataProvider<CardSum
     @Override
     @Synchronized
     protected Stream<CardSummary> fetchFromBackEnd(Query<CardSummary, Void> query) {
-        /*
-         * If we are already doing a query (and are subscribed to it), cancel are subscription
-         * and forget about the query.
-         */
-        if (fetchQueryResult != null) {
-            fetchQueryResult.cancel();
-            fetchQueryResult = null;
-        }
-        FetchCardSummariesQuery fetchCardSummariesQuery =
-                new FetchCardSummariesQuery(query.getOffset(), query.getLimit(), filter);
-        log.trace("submitting {}", fetchCardSummariesQuery);
-        /*
-         * Submitting our query as a subscriptionquery, specifying both the initially expected
-         * response type (multiple CardSummaries) as wel as the expected type of the updates
-         * (single CardSummary object). The result is a SubscriptionQueryResult which contains
-         * a project reactor Mono for the initial response, and a Flux for the updates.
-         */
-        fetchQueryResult = queryGateway.subscriptionQuery(fetchCardSummariesQuery,
-                ResponseTypes.multipleInstancesOf(CardSummary.class),
-                ResponseTypes.instanceOf(CardSummary.class));
-        /*
-         * Subscribing to the updates before we get the initial results.
-         */
-        fetchQueryResult.updates().subscribe(
-                cardSummary -> {
-                    log.trace("processing query update for {}: {}", fetchCardSummariesQuery, cardSummary);
-                    /* This is a Vaadin-specific call to update the UI as a result of data changes. */
-                    fireEvent(new DataChangeEvent.DataRefreshEvent<>(this, cardSummary));
-                });
-        /*
-         * Returning the initial result.
-         */
-        return fetchQueryResult.initialResult().block().stream();
+//        /*
+//         * If we are already doing a query (and are subscribed to it), cancel are subscription
+//         * and forget about the query.
+//         */
+//        if (fetchQueryResult != null) {
+//            fetchQueryResult.cancel();
+//            fetchQueryResult = null;
+//        }
+//        FetchCardSummariesQuery fetchCardSummariesQuery =
+//                new FetchCardSummariesQuery(query.getOffset(), query.getLimit(), filter);
+//        log.trace("submitting {}", fetchCardSummariesQuery);
+//        /*
+//         * Submitting our query as a subscriptionquery, specifying both the initially expected
+//         * response type (multiple CardSummaries) as wel as the expected type of the updates
+//         * (single CardSummary object). The result is a SubscriptionQueryResult which contains
+//         * a project reactor Mono for the initial response, and a Flux for the updates.
+//         */
+//        fetchQueryResult = queryGateway.subscriptionQuery(fetchCardSummariesQuery,
+//                ResponseTypes.multipleInstancesOf(CardSummary.class),
+//                ResponseTypes.instanceOf(CardSummary.class));
+//        /*
+//         * Subscribing to the updates before we get the initial results.
+//         */
+//        fetchQueryResult.updates().subscribe(
+//                cardSummary -> {
+//                    log.trace("processing query update for {}: {}", fetchCardSummariesQuery, cardSummary);
+//                    /* This is a Vaadin-specific call to update the UI as a result of data changes. */
+//                    fireEvent(new DataChangeEvent.DataRefreshEvent<>(this, cardSummary));
+//                });
+//        /*
+//         * Returning the initial result.
+//         */
+        return null;//fetchQueryResult.initialResult().block().stream();
     }
 
     @Override
@@ -99,7 +99,7 @@ public class CardSummaryDataProvider extends AbstractBackEndDataProvider<CardSum
 //                        fireEvent(new DataChangeEvent(this));
                     executorService.execute(() -> fireEvent(new DataChangeEvent<>(this)));
                 });
-        return countQueryResult.initialResult().block().getCount();
+        return 0;//countQueryResult.initialResult().block().getCount();
     }
 
     @Synchronized

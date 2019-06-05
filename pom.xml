@@ -85,11 +85,11 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-			<version>${postgresql.jdbc.version}</version>
-			<scope>runtime</scope>
+			<groupId>com.impossibl.pgjdbc-ng</groupId>
+			<artifactId>pgjdbc-ng</artifactId>
+			<version>0.8.2</version>
 		</dependency>
+
 
 		<!-- This will of course be an Axon application. We're adding Kotlin to easily
 		     write command and event classes. -->

@@ -1,11 +1,14 @@
 package io.axoniq.demo.giftcard;
 
+import com.impossibl.postgres.api.jdbc.PGConnection;
+import com.impossibl.postgres.api.jdbc.PGNotificationListener;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import org.axonframework.common.jdbc.PersistenceExceptionResolver;
 import org.axonframework.common.jpa.EntityManagerProvider;
 import org.axonframework.common.transaction.TransactionManager;
 import org.axonframework.config.EventProcessingConfigurer;
+import org.axonframework.eventhandling.TrackingEventProcessorConfiguration;
 import org.axonframework.eventhandling.tokenstore.TokenStore;
 import org.axonframework.eventhandling.tokenstore.inmemory.InMemoryTokenStore;
 import org.axonframework.eventhandling.tokenstore.jpa.JpaTokenStore;
@@ -25,7 +28,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.Duration;
+import javax.sql.DataSource;
 
 
 @Configuration
@@ -139,4 +148,46 @@ public class MultProcessorConfig {
 //        config.registerTrackingEventProcessor(CardSummaryProjection.class.getPackage().getName(), c -> multiStreamableMessageSource);
 //    }
 
+    @Autowired
+    public void configurePostgresTrigger(@Qualifier("ephemeral") EmbeddedEventStore ephemeral,
+                                         @Qualifier("permanent") EmbeddedEventStore permanent,
+                                         @Qualifier("ephemeral")DataSource ephemeralDataSource,
+                                         @Qualifier("permanent") DataSource dataSource) throws SQLException
+
+    {
+
+        Connection permenantDataSourceConnection = dataSource.getConnection();
+        PGConnection permanentPGConnection = permenantDataSourceConnection.unwrap(PGConnection.class);
+
+        permanentPGConnection.addNotificationListener(new PGNotificationListener() {
+            @Override
+            public void notification(int processId, String channelName, String payload) {
+                permanent.notifyProcessorsOfNewEvents();
+
+            }
+
+        });
+
+        Statement permanentStatement = permenantDataSourceConnection.createStatement();
+        permanentStatement.executeUpdate("LISTEN newEventsChannel");
+
+
+        Connection ephemeralDataSourceConnection = ephemeralDataSource.getConnection();
+        PGConnection ephemeralPGConnection = ephemeralDataSourceConnection.unwrap(PGConnection.class);
+
+        ephemeralPGConnection.addNotificationListener(new PGNotificationListener() {
+            @Override
+            public void notification(int processId, String channelName, String payload) {
+                ephemeral.notifyProcessorsOfNewEvents();
+
+            }
+
+        });
+
+
+        Statement ephemeralStatement = ephemeralDataSourceConnection.createStatement();
+        ephemeralStatement.executeUpdate("LISTEN newEventsChannel");
+
+
+    }
 }
